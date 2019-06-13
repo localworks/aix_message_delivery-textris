@@ -7,7 +7,7 @@
 Gemfileに追記
 
 ```ruby
-gem 'aix_message_delivery'
+gem 'aix_message_delivery', github: 'localworks/aix_message_delivery-textris'
 ```
 
 bundle 実行
