@@ -24,6 +24,24 @@ Rails.application.configure do
 end
 ```
 
+### 環境変数を設定
+
+以下の環境変数を設定
+
+```
+AIX_MESSAGE_ACCESS_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+AIX_MESSAGE_CLIENT_ID=xxxx
+AIX_MESSAGE_SMS_CODE=xxxxx
+```
+
+#### 各変数取得用URL
+
+##### AIX_MESSAGE_ACCESS_TOKEN（アクセストークン）
+https://qpd.aossms.com/aossmsqpd/admin/account/token.do
+
+##### AIX_MESSAGE_CLIENT_ID（クライアントID）, AIX_MESSAGE_SMS_CODE（SMSコード）
+https://qpd.aossms.com/aossmsqpd/admin/client/detail.do
+
 ## 制限
 
 - 70文字までの送信制限があります（短縮URL含む）。
