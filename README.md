@@ -59,6 +59,16 @@ http://example.com/?no_short=true # 短縮されません
 http://example.com/?foo=bar&no_short=true # 短縮されません
 ```
 
+## テスト
+
+TestWithLengthValidation を用いることで、70文字制限を超えるテキスト送信でエラーを起こすことができます。
+
+```ruby
+Rails.application.configure do
+  config.textris_delivery_method = :test_with_length_validation
+end
+```
+
 ## [注意] 非同期実行について
 
 Textrisのdeliver_laterメソッドが使うのは `textris` キューになります。ワーカーを適切に設定してください。

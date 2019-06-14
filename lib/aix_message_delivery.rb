@@ -1,6 +1,7 @@
 require 'textris'
 require 'uri'
 require 'net/http'
+require 'test_with_length_validation'
 
 class AixMessageDelivery < Textris::Delivery::Base
   VERSION = '0.1.0'
