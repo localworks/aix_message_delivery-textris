@@ -1,7 +1,7 @@
 require 'textris'
 require 'uri'
 
-class AixMessageTest < Textris::Delivery::Test
+class AixMessageTestDelivery < Textris::Delivery::Test
   def deliver(to)
     super
 
