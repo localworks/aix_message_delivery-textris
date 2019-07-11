@@ -1,12 +1,12 @@
 require 'textris'
 require 'uri'
 
-class AixMessageTestDelivery < Textris::Delivery::Test
+class AixMessageTestDelivery < Textris::Delivery::Base
   def deliver(to)
-    super
-
     raise 'Message Too Long (Must be <= 70)' \
       if shorten_urls_in_message(message.content).size > 70
+
+    ::Textris::Delivery::Test.new(@message).deliver(to)
   end
 
   def shorten_urls_in_message(message)
