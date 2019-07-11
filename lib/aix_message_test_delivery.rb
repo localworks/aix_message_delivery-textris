@@ -3,10 +3,13 @@ require 'uri'
 
 class AixMessageTestDelivery < Textris::Delivery::Base
   def deliver(to)
-    content = shorten_urls_in_message(message.content)
+    contents = shorten_urls_in_message(message.content)
+               .split('<!-- separator -->')
 
-    raise "Message Too Long (#{content.size}, must be <= 70): #{content}" \
-      if content.size > 70
+    contents.each do |c|
+      raise "Message Too Long (#{c.size}, must be <= 70): #{c.inspect}, in #{contents}" \
+        if c.size > 70
+    end
 
     ::Textris::Delivery::Test.new(message).deliver(to)
   end

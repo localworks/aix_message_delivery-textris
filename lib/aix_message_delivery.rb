@@ -4,26 +4,33 @@ require 'net/http'
 require 'aix_message_test_delivery'
 
 class AixMessageDelivery < Textris::Delivery::Base
-  VERSION = '0.1.0'
+  VERSION = '0.1.0'.freeze
   API_BASE_URL = 'https://qpd-api.aossms.com/'.freeze
   ENDPOINT = "#{API_BASE_URL}/p11/api/mt.json".freeze
   SHORTEN_URL_ENDPOINT = "#{API_BASE_URL}/p1/api/shortenurl.json".freeze
   MAX_MESSAGE_LENGTH = 70
+  SPLITTED_MESSAGE_SEND_INTERVAL = 3 # SMS分割時に順序がおかしくなる場合は増やす
 
   class MessageTooLong < StandardError; end
   class SMSDeliveryFailed < StandardError; end
   class URLShorteningFailed < StandardError; end
 
   def deliver(phone)
-    send_message!(phone, shorten_urls_in_message(message.content))
+    contents = shorten_urls_in_message(message.content)
+               .split('<!-- separator -->')
+
+    raise MessageTooLong, "Too Long Message Exists: #{contents.map { |c| [c, c.size] }}" \
+      if contents.any? { |c| c.size > MAX_MESSAGE_LENGTH }
+
+    contents.each do |c|
+      send_message!(phone, c)
+      sleep SPLITTED_MESSAGE_SEND_INTERVAL
+    end
   end
 
   private
 
   def send_message!(phone, message)
-    raise MessageTooLong, "Too Long Message: #{message.size} length" \
-      if message.size > MAX_MESSAGE_LENGTH
-
     res = post_request(ENDPOINT, params("+#{phone}", message))
 
     raise SMSDeliveryFailed, res.inspect unless res.is_a?(Net::HTTPOK)

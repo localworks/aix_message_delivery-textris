@@ -59,6 +59,11 @@ http://example.com/?no_short=true # 短縮されません
 http://example.com/?foo=bar&no_short=true # 短縮されません
 ```
 
+## 分割送信機能
+
+`<!-- separator -->` を挿入した箇所で本文を複数のSMSに分割することができます。
+一つのメッセージが70文字に収まらない場合などにこの機能を使ってください。
+
 ## テスト
 
 AixMessageTest を用いることで、70文字制限を超えるテキスト送信でエラーを起こすことができます。
