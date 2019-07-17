@@ -1,19 +1,14 @@
+require 'aix_message_delivery/version'
 require 'textris'
-require 'uri'
-require 'net/http'
 require 'aix_message_test_delivery'
+require 'aix_message'
 
 class AixMessageDelivery < Textris::Delivery::Base
-  VERSION = '0.1.0'.freeze
-  API_BASE_URL = 'https://qpd-api.aossms.com/'.freeze
-  ENDPOINT = "#{API_BASE_URL}/p11/api/mt.json".freeze
-  SHORTEN_URL_ENDPOINT = "#{API_BASE_URL}/p1/api/shortenurl.json".freeze
   MAX_MESSAGE_LENGTH = 70
   SPLITTED_MESSAGE_SEND_INTERVAL = 3 # SMS分割時に順序がおかしくなる場合は増やす
+  NO_SHORT_URL_REGEX = /[\?\&]no_short\=true/
 
   class MessageTooLong < StandardError; end
-  class SMSDeliveryFailed < StandardError; end
-  class URLShorteningFailed < StandardError; end
 
   def deliver(phone)
     contents = shorten_urls_in_message(message.content)
@@ -23,67 +18,15 @@ class AixMessageDelivery < Textris::Delivery::Base
       if contents.any? { |c| c.size > MAX_MESSAGE_LENGTH }
 
     contents.each do |c|
-      send_message!(phone, c)
+      aix_message.send!(phone, c)
       sleep SPLITTED_MESSAGE_SEND_INTERVAL
     end
   end
 
   private
 
-  def send_message!(phone, message)
-    res = post_request(ENDPOINT, params("+#{phone}", message))
-
-    raise SMSDeliveryFailed, res.inspect unless res.is_a?(Net::HTTPOK)
-
-    parsed = JSON.parse(res.body)
-
-    raise SMSDeliveryFailed, parsed['responseMessage'] if parsed['responseCode'] > 0
-
-    parsed
-  end
-
-  def post_request(url, params)
-    uri = URI.parse(url)
-    uri.query = URI.encode_www_form(params)
-    Net::HTTP.post_form(uri, {})
-  end
-
-  def base_params
-    {
-      token: ENV['AIX_MESSAGE_ACCESS_TOKEN'],
-      clientId: ENV['AIX_MESSAGE_CLIENT_ID']
-    }
-  end
-
-  def params(phone_number, message)
-    base_params.merge(
-      smsCode: ENV['AIX_MESSAGE_SMS_CODE'],
-      phoneNumber: phone_number,
-      message: message
-    )
-  end
-
-  def shorten_url!(url)
-    no_short_regex = /[\?\&]no_short\=true/
-
-    return url.remove(no_short_regex) if url =~ no_short_regex
-
-    params = base_params.merge(longUrl: url)
-    res = post_request(SHORTEN_URL_ENDPOINT, params)
-
-    raise URLShorteningFailed, res.inspect unless res.is_a?(Net::HTTPOK)
-
-    parsed = JSON.parse(res.body)
-
-    raise URLShorteningFailed, parsed['responseMessage'] if parsed['responseCode'] > 0
-
-    parsed['shortUrl']
-  end
-
-  def shorten_url(url)
-    shorten_url!(url)
-  rescue URLShorteningFailed
-    url
+  def aix_message
+    @aix_message ||= AixMessage.new
   end
 
   def shorten_urls_in_message(message)
@@ -94,5 +37,11 @@ class AixMessageDelivery < Textris::Delivery::Base
     end
 
     message
+  end
+
+  def shorten_url(url)
+    return url.remove(NO_SHORT_URL_REGEX) if url =~ NO_SHORT_URL_REGEX
+
+    aix_message.shorten_url(url)
   end
 end
