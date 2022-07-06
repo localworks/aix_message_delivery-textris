@@ -50,8 +50,7 @@ class AixMessage
 
   def post_request(url, params)
     uri = URI.parse(url)
-    uri.query = URI.encode_www_form(params)
-    Net::HTTP.post_form(uri, {})
+    Net::HTTP.post(uri, URI.encode_www_form(params))
   end
 
   def base_params
