@@ -1,27 +1,19 @@
 RSpec.describe AixMessageDelivery do
+  let(:delivery) { described_class.new(message) }
+  let(:aix_message) { instance_double(AixMessage) }
+
   before do
-    class AixMessage
-      class << self
-        def messages
-          @messages ||= []
-        end
-      end
-
-      def send!(phone, message)
-        self.class.messages << [phone, message]
-      end
-
-      def shorten_url!(_url)
-        'https://ans.la/UxNyC2'
-      end
-    end
+    allow(AixMessage)
+      .to receive(:new).and_return(aix_message)
+    allow(aix_message)
+      .to receive(:send!)
+    allow(aix_message)
+      .to receive(:shorten_url).with('http://example.com/long/path').and_return('https://ans.la/UxNyC2')
   end
 
   it 'has a version number' do
     expect(AixMessageDelivery::VERSION).not_to be nil
   end
-
-  let(:delivery) { described_class.new(message) }
 
   describe 'send sms' do
     let(:message) do
@@ -32,7 +24,7 @@ RSpec.describe AixMessageDelivery do
     end
 
     it do
-      expect_any_instance_of(AixMessage).to receive(:send!).once
+      expect(aix_message).to receive(:send!).once
       delivery.deliver_to_all
     end
   end
@@ -46,7 +38,7 @@ RSpec.describe AixMessageDelivery do
     end
 
     it do
-      expect_any_instance_of(AixMessage).to receive(:send!).twice
+      expect(aix_message).to receive(:send!).twice
       delivery.deliver_to_all
     end
   end
@@ -60,7 +52,7 @@ RSpec.describe AixMessageDelivery do
     end
 
     it do
-      expect_any_instance_of(AixMessage).to receive(:send!).once do |_ctx, _phone, msg|
+      expect(aix_message).to receive(:send!).once do |_phone, msg|
         expect(msg).to include('https://ans.la/UxNyC2')
       end
       delivery.deliver_to_all
