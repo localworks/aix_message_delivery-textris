@@ -60,7 +60,7 @@ RSpec.describe AixMessageDelivery do
     end
 
     it do
-      expect_any_instance_of(AixMessage).to receive(:send!).once do |ctx, phone, msg|
+      expect_any_instance_of(AixMessage).to receive(:send!).once do |_ctx, _phone, msg|
         expect(msg).to include('https://ans.la/UxNyC2')
       end
       delivery.deliver_to_all

@@ -22,7 +22,7 @@ class AixMessage
 
     parsed = JSON.parse(res.body)
 
-    raise SMSDeliveryFailed, parsed['responseMessage'] if parsed['responseCode'] > 0
+    raise SMSDeliveryFailed, parsed['responseMessage'] if parsed['responseCode'].positive?
 
     parsed
   end
@@ -35,7 +35,7 @@ class AixMessage
 
     parsed = JSON.parse(res.body)
 
-    raise URLShorteningFailed, parsed['responseMessage'] if parsed['responseCode'] > 0
+    raise URLShorteningFailed, parsed['responseMessage'] if parsed['responseCode'].positive?
 
     parsed['shortUrl']
   end

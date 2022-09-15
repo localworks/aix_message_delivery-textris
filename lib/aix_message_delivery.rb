@@ -6,7 +6,7 @@ require 'aix_message'
 class AixMessageDelivery < Textris::Delivery::Base
   MAX_MESSAGE_LENGTH = 70
   SPLITTED_MESSAGE_SEND_INTERVAL = 3 # SMS分割時に順序がおかしくなる場合は増やす
-  NO_SHORT_URL_REGEX = /[\?\&]no_short\=true/
+  NO_SHORT_URL_REGEX = /[?&]no_short=true/
 
   class MessageTooLong < StandardError; end
 
@@ -31,8 +31,8 @@ class AixMessageDelivery < Textris::Delivery::Base
 
   def shorten_urls_in_message(message)
     URI.extract(message)
-      .map { |url| [url, shorten_url(url)] }.to_h
-      .each do |long, short|
+       .map { |url| [url, shorten_url(url)] }.to_h
+       .each do |long, short|
       message = message.sub(long, short)
     end
 
