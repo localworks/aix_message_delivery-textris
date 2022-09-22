@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 RSpec.describe AixMessageDelivery do
   let(:delivery) { described_class.new(message) }
   let(:aix_message) { instance_double(AixMessage) }
