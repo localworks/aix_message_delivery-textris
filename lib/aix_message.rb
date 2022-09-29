@@ -2,7 +2,7 @@ require 'uri'
 require 'net/http'
 
 class AixMessage
-  ENDPOINT = "https://qpd-api.aossms.com/p11/api/mt.json".freeze # TODO: 新しいAPIを使う
+  ENDPOINT = "https://sms-api.aossms.com/p5/api/mt.json".freeze
   SHORTEN_URL_ENDPOINT = "https://sms-api.aossms.com/p1/api/shortenurl.json".freeze
 
   class SMSDeliveryFailed < StandardError; end

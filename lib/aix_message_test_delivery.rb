@@ -2,13 +2,15 @@ require 'textris'
 require 'uri'
 
 class AixMessageTestDelivery < Textris::Delivery::Base
+  MAX_MESSAGE_LENGTH = 660
+
   def deliver(to)
     contents = shorten_urls_in_message(message.content)
                .split('<!-- separator -->')
 
     contents.each do |c|
-      raise "Message Too Long (#{c.size}, must be <= 70): #{c.inspect}, in #{contents}" \
-        if c.size > 70
+      raise "Message Too Long (#{c.size}, must be <= #{MAX_MESSAGE_LENGTH}): #{c.inspect}, in #{contents}" \
+        if c.size > MAX_MESSAGE_LENGTH
     end
 
     ::Textris::Delivery::Test.new(message).deliver(to)

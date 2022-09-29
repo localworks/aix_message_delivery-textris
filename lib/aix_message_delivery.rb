@@ -4,7 +4,7 @@ require 'aix_message_test_delivery'
 require 'aix_message'
 
 class AixMessageDelivery < Textris::Delivery::Base
-  MAX_MESSAGE_LENGTH = 70
+  MAX_MESSAGE_LENGTH = 660
   SPLITTED_MESSAGE_SEND_INTERVAL = 3 # SMS分割時に順序がおかしくなる場合は増やす
   NO_SHORT_URL_REGEX = /[?&]no_short=true/
 
