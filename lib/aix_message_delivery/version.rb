@@ -1,5 +1,3 @@
-require 'textris'
-
-class AixMessageDelivery < Textris::Delivery::Base
+class AixMessageDelivery
   VERSION = '1.0.2'.freeze
 end

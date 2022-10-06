@@ -1,12 +1,10 @@
-
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-VERSION = '1.0.2'.freeze
-# FIXME: require "aix_message_delivery/version"
+require "aix_message_delivery/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "aix_message_delivery"
-  spec.version       = VERSION
+  spec.version       = AixMessageDelivery::VERSION
   spec.authors       = ["yukihiro hara"]
   spec.email         = ["yukihr@gmail.com"]
 
