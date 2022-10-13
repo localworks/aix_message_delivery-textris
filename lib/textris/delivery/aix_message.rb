@@ -10,7 +10,15 @@ module Textris
 
       class MessageTooLong < StandardError; end
 
-      def deliver(phone)
+      def initialize(message)
+        @aix_message_client = ::AixMessage.new
+
+        super
+      end
+
+      attr_reader :aix_message_client
+
+      def deliver(to)
         contents = shorten_urls_in_message(message.content)
                    .split('<!-- separator -->')
 
@@ -18,16 +26,12 @@ module Textris
           if contents.any? { |c| c.size > MAX_MESSAGE_LENGTH }
 
         contents.each do |c|
-          aix_message.send!(phone, c)
+          aix_message_client.send!(to, c)
           sleep SPLITTED_MESSAGE_SEND_INTERVAL
         end
       end
 
       private
-
-      def aix_message
-        @aix_message ||= AixMessage.new
-      end
 
       def shorten_urls_in_message(message)
         URI.extract(message)
@@ -42,7 +46,7 @@ module Textris
       def shorten_url(url)
         return url.remove(NO_SHORT_URL_REGEX) if url =~ NO_SHORT_URL_REGEX
 
-        aix_message.shorten_url(url)
+        aix_message_client.shorten_url(url)
       end
     end
   end
