@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://qpd-api.aossms.com/p11/api/mt.json
+    body:
+      encoding: US-ASCII
+      string: token=580252cead236502fe58b40c7d6c7388&clientId=1111&smsCode=22222&phoneNumber=%2B810011112222&message=Hi%21+%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF+%E4%BD%A0%E5%A5%BD+%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - qpd-api.aossms.com
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 22 Sep 2022 04:56:04 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJyZXNwb25zZUNvZGUiOjAsInJlc3BvbnNlTWVzc2FnZSI6IlN1Y2Nlc3MuIiwicGhvbmVOdW1iZXIiOiIrODEwMDExMTEyMjIyIiwic21zTWVzc2FnZSI6IkhpISDjgZPjgpPjgavjgaHjga8g5L2g5aW9IOCkqOCkruCkuOCljeCkpCJ9
+  recorded_at: Thu, 22 Sep 2022 04:56:04 GMT
+recorded_with: VCR 6.1.0

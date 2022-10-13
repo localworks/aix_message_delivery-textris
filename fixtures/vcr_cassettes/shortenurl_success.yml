@@ -1,0 +1,43 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sms-api.aossms.com/p1/api/shortenurl.json
+    body:
+      encoding: US-ASCII
+      string: token=580252cead236502fe58b40c7d6c7388&clientId=1111&longUrl=https%3A%2F%2Fsome.long-url.com%2Fhoge%2Fhuga%2Fpiyo%2Fasdfasdfasdfasdfasdf
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - sms-api.aossms.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 22 Sep 2022 02:37:26 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - nginx
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+    body:
+      encoding: UTF-8
+      string: '{"responseCode":0,"responseMessage":"Success.","shortUrl":"https://ai9.jp/ohcO9a","name":"Shorturl-20220922113726412"}'
+  recorded_at: Thu, 22 Sep 2022 02:37:26 GMT
+recorded_with: VCR 6.1.0

@@ -2,9 +2,8 @@ require 'uri'
 require 'net/http'
 
 class AixMessage
-  API_BASE_URL = 'https://qpd-api.aossms.com/'.freeze
-  ENDPOINT = "#{API_BASE_URL}/p11/api/mt.json".freeze
-  SHORTEN_URL_ENDPOINT = "#{API_BASE_URL}/p1/api/shortenurl.json".freeze
+  ENDPOINT = "https://qpd-api.aossms.com/p11/api/mt.json".freeze # TODO: 新しいAPIを使う
+  SHORTEN_URL_ENDPOINT = "https://sms-api.aossms.com/p1/api/shortenurl.json".freeze
 
   class SMSDeliveryFailed < StandardError; end
   class URLShorteningFailed < StandardError; end
@@ -22,7 +21,7 @@ class AixMessage
 
     parsed = JSON.parse(res.body)
 
-    raise SMSDeliveryFailed, parsed['responseMessage'] if parsed['responseCode'] > 0
+    raise SMSDeliveryFailed, parsed['responseMessage'] if parsed['responseCode'].positive?
 
     parsed
   end
@@ -35,7 +34,7 @@ class AixMessage
 
     parsed = JSON.parse(res.body)
 
-    raise URLShorteningFailed, parsed['responseMessage'] if parsed['responseCode'] > 0
+    raise URLShorteningFailed, parsed['responseMessage'] if parsed['responseCode'].positive?
 
     parsed['shortUrl']
   end
