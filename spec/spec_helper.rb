@@ -1,4 +1,5 @@
 require 'bundler/setup'
+require 'logger'
 require 'aix_message_delivery'
 require 'webmock/rspec'
 require 'vcr'
