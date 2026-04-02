@@ -45,6 +45,13 @@ RSpec.describe AixMessage do
       expect(http).to have_received(:read_timeout=).with(10)
       expect(http).to have_received(:write_timeout=).with(10)
     end
+
+    it "raises SMSDeliveryFailed on timeout" do
+      allow(Net::HTTP).to receive(:start).and_raise(Net::ReadTimeout, "execution expired")
+
+      expect { aix_message.send!(phone, message) }
+        .to raise_error(AixMessage::SMSDeliveryFailed, "execution expired")
+    end
   end
 
   describe "#send!" do
@@ -80,6 +87,16 @@ RSpec.describe AixMessage do
       VCR.use_cassette("shortenurl_success") do
         expect(aix_message.shorten_url!(url)).to eq("https://ai9.jp/ohcO9a")
       end
+    end
+  end
+
+  describe "#shorten_url" do
+    let(:url) { "https://some.long-url.com/hoge/huga/piyo/asdfasdfasdfasdfasdf" }
+
+    it "falls back to original URL on timeout" do
+      allow(Net::HTTP).to receive(:start).and_raise(Net::OpenTimeout, "execution expired")
+
+      expect(aix_message.shorten_url(url)).to eq(url)
     end
   end
 end

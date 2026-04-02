@@ -18,7 +18,7 @@ class AixMessage
   end
 
   def send!(phone, message)
-    res = post_request(ENDPOINT, sms_params("+#{phone}", message))
+    res = post_request(ENDPOINT, sms_params("+#{phone}", message), error_class: SMSDeliveryFailed)
 
     raise SMSDeliveryFailed, res.inspect unless res.is_a?(Net::HTTPOK)
 
@@ -31,7 +31,7 @@ class AixMessage
 
   def shorten_url!(url)
     params = base_params.merge(longUrl: url)
-    res = post_request(SHORTEN_URL_ENDPOINT, params)
+    res = post_request(SHORTEN_URL_ENDPOINT, params, error_class: URLShorteningFailed)
 
     raise URLShorteningFailed, res.inspect unless res.is_a?(Net::HTTPOK)
 
@@ -50,7 +50,7 @@ class AixMessage
 
   private
 
-  def post_request(url, params)
+  def post_request(url, params, error_class:)
     uri = URI.parse(url)
     request = Net::HTTP::Post.new(uri)
     request.set_form_data(params)
@@ -61,6 +61,8 @@ class AixMessage
       http.write_timeout = WRITE_TIMEOUT
       http.request(request)
     end
+  rescue Net::OpenTimeout, Net::ReadTimeout, Net::WriteTimeout => e
+    raise error_class, e.message
   end
 
   def base_params
