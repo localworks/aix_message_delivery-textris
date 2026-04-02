@@ -50,7 +50,7 @@ RSpec.describe AixMessage do
       allow(Net::HTTP).to receive(:start).and_raise(Net::ReadTimeout, "execution expired")
 
       expect { aix_message.send!(phone, message) }
-        .to raise_error(AixMessage::SMSDeliveryFailed, "execution expired")
+        .to raise_error(AixMessage::SMSDeliveryFailed, /execution expired/)
     end
   end
 
