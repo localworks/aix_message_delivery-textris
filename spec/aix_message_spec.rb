@@ -18,7 +18,11 @@ RSpec.describe AixMessage do
       response = instance_double(Net::HTTPOK, body: { responseCode: 0, responseMessage: "Success." }.to_json)
       allow(response).to receive(:is_a?).with(Net::HTTPOK).and_return(true)
 
-      http = instance_double(Net::HTTP)
+      http = double("http")
+      allow(http).to receive(:open_timeout=)
+      allow(http).to receive(:read_timeout=)
+      allow(http).to receive(:write_timeout=)
+      allow(http).to receive(:respond_to?).with(:write_timeout=).and_return(true)
       allow(http).to receive(:request) do |req|
         request = req
         response
@@ -38,6 +42,9 @@ RSpec.describe AixMessage do
           message: message
         )
       )
+      expect(http).to have_received(:open_timeout=).with(5)
+      expect(http).to have_received(:read_timeout=).with(10)
+      expect(http).to have_received(:write_timeout=).with(10)
     end
   end
 

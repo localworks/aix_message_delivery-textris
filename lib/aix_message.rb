@@ -4,6 +4,9 @@ require 'net/http'
 class AixMessage
   ENDPOINT = "https://sms-api.aossms.com/p5/api/mt.json".freeze
   SHORTEN_URL_ENDPOINT = "https://sms-api.aossms.com/p1/api/shortenurl.json".freeze
+  OPEN_TIMEOUT = 5
+  READ_TIMEOUT = 10
+  WRITE_TIMEOUT = 10
 
   class SMSDeliveryFailed < StandardError; end
   class URLShorteningFailed < StandardError; end
@@ -53,6 +56,9 @@ class AixMessage
     request.set_form_data(params)
 
     Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      http.open_timeout = OPEN_TIMEOUT
+      http.read_timeout = READ_TIMEOUT
+      http.write_timeout = WRITE_TIMEOUT if http.respond_to?(:write_timeout=)
       http.request(request)
     end
   end
