@@ -58,7 +58,7 @@ class AixMessage
     Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
       http.open_timeout = OPEN_TIMEOUT
       http.read_timeout = READ_TIMEOUT
-      http.write_timeout = WRITE_TIMEOUT if http.respond_to?(:write_timeout=)
+      http.write_timeout = WRITE_TIMEOUT
       http.request(request)
     end
   end

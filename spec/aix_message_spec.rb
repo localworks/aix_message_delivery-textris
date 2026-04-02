@@ -22,7 +22,6 @@ RSpec.describe AixMessage do
       allow(http).to receive(:open_timeout=)
       allow(http).to receive(:read_timeout=)
       allow(http).to receive(:write_timeout=)
-      allow(http).to receive(:respond_to?).with(:write_timeout=).and_return(true)
       allow(http).to receive(:request) do |req|
         request = req
         response
