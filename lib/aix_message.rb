@@ -4,6 +4,9 @@ require 'net/http'
 class AixMessage
   ENDPOINT = "https://sms-api.aossms.com/p5/api/mt.json".freeze
   SHORTEN_URL_ENDPOINT = "https://sms-api.aossms.com/p1/api/shortenurl.json".freeze
+  OPEN_TIMEOUT = 5
+  READ_TIMEOUT = 10
+  WRITE_TIMEOUT = 10
 
   class SMSDeliveryFailed < StandardError; end
   class URLShorteningFailed < StandardError; end
@@ -15,7 +18,7 @@ class AixMessage
   end
 
   def send!(phone, message)
-    res = post_request(ENDPOINT, sms_params("+#{phone}", message))
+    res = post_request(ENDPOINT, sms_params("+#{phone}", message), error_class: SMSDeliveryFailed)
 
     raise SMSDeliveryFailed, res.inspect unless res.is_a?(Net::HTTPOK)
 
@@ -28,7 +31,7 @@ class AixMessage
 
   def shorten_url!(url)
     params = base_params.merge(longUrl: url)
-    res = post_request(SHORTEN_URL_ENDPOINT, params)
+    res = post_request(SHORTEN_URL_ENDPOINT, params, error_class: URLShorteningFailed)
 
     raise URLShorteningFailed, res.inspect unless res.is_a?(Net::HTTPOK)
 
@@ -47,9 +50,19 @@ class AixMessage
 
   private
 
-  def post_request(url, params)
+  def post_request(url, params, error_class:)
     uri = URI.parse(url)
-    Net::HTTP.post(uri, URI.encode_www_form(params))
+    request = Net::HTTP::Post.new(uri)
+    request.set_form_data(params)
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      http.open_timeout = OPEN_TIMEOUT
+      http.read_timeout = READ_TIMEOUT
+      http.write_timeout = WRITE_TIMEOUT
+      http.request(request)
+    end
+  rescue Net::OpenTimeout, Net::ReadTimeout, Net::WriteTimeout => e
+    raise error_class, e.message
   end
 
   def base_params

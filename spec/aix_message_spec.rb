@@ -11,6 +11,51 @@ RSpec.describe AixMessage do
 
   describe "#send!" do
     let(:phone) { "818011112222" }
+    let(:message) { "hello" }
+
+    it "sends application/x-www-form-urlencoded" do
+      request = nil
+      response = instance_double(Net::HTTPOK, body: { responseCode: 0, responseMessage: "Success." }.to_json)
+      allow(response).to receive(:is_a?).with(Net::HTTPOK).and_return(true)
+
+      http = double("http")
+      allow(http).to receive(:open_timeout=)
+      allow(http).to receive(:read_timeout=)
+      allow(http).to receive(:write_timeout=)
+      allow(http).to receive(:request) do |req|
+        request = req
+        response
+      end
+
+      allow(Net::HTTP).to receive(:start).and_yield(http)
+
+      aix_message.send!(phone, message)
+
+      expect(request["Content-Type"]).to eq("application/x-www-form-urlencoded")
+      expect(request.body).to eq(
+        URI.encode_www_form(
+          token: "XXXXXXXXXXXXXXXXXX",
+          clientId: "1234",
+          smsCode: "12345",
+          phoneNumber: "+#{phone}",
+          message: message
+        )
+      )
+      expect(http).to have_received(:open_timeout=).with(5)
+      expect(http).to have_received(:read_timeout=).with(10)
+      expect(http).to have_received(:write_timeout=).with(10)
+    end
+
+    it "raises SMSDeliveryFailed on timeout" do
+      allow(Net::HTTP).to receive(:start).and_raise(Net::ReadTimeout, "execution expired")
+
+      expect { aix_message.send!(phone, message) }
+        .to raise_error(AixMessage::SMSDeliveryFailed, /execution expired/)
+    end
+  end
+
+  describe "#send!" do
+    let(:phone) { "818011112222" }
     let(:message) { <<~SMS_TEXT }
       親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事がある。なぜそんな無闇をしたと聞く人があるかも知れぬ。別段深い理由でもない。新築の二階から首を出していたら、同級生の一人が冗談に、いくら威張っても、そこから飛び降りる事は出来まい。弱虫やーい。と囃したからである。
       小使に負ぶさって帰って来た時、おやじが大きな眼をして二階ぐらいから飛び降りて腰を抜かす奴があるかと云ったから、この次は抜かさずに飛んで見せますと答えた。（青空文庫より）
@@ -42,6 +87,16 @@ RSpec.describe AixMessage do
       VCR.use_cassette("shortenurl_success") do
         expect(aix_message.shorten_url!(url)).to eq("https://ai9.jp/ohcO9a")
       end
+    end
+  end
+
+  describe "#shorten_url" do
+    let(:url) { "https://some.long-url.com/hoge/huga/piyo/asdfasdfasdfasdfasdf" }
+
+    it "falls back to original URL on timeout" do
+      allow(Net::HTTP).to receive(:start).and_raise(Net::OpenTimeout, "execution expired")
+
+      expect(aix_message.shorten_url(url)).to eq(url)
     end
   end
 end
