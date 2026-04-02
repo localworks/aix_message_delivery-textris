@@ -49,7 +49,12 @@ class AixMessage
 
   def post_request(url, params)
     uri = URI.parse(url)
-    Net::HTTP.post(uri, URI.encode_www_form(params))
+    request = Net::HTTP::Post.new(uri)
+    request.set_form_data(params)
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      http.request(request)
+    end
   end
 
   def base_params
